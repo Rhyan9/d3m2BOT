@@ -191,9 +191,8 @@ app.post("/register", async (req, res) => {
                     }
                 }
             } else {
-                res.send(response.data);
-                // noCaptchaReg = true;
-                // res.redirect('/register');
+                noCaptchaReg = true;
+                res.redirect('/register');
             }
         })
 });
