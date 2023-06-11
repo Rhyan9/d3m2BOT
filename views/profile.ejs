@@ -1,0 +1,71 @@
+<%- include('./partials/head') %>
+    <%- include('./partials/navbar') %>
+
+        <div class="container-lg p-3 justify-content-center">
+            <div class="row profile-border">
+                <div class="col-6 p-3">
+                    <p class="text-white"><strong class="properties me-3">Username:</strong>
+                        <%= user.username %>
+                    </p>
+                </div>
+                <div class="col-6 p-3">
+                    <p class="text-white"><strong class="properties me-3">HWID:</strong>
+                        <%= user.hwid %>
+                    </p>
+                </div>
+                <div class="col-6 p-3 pb-0">
+                    <% if (response==="Invalid HWID" ) { %>
+                        <p style="color: rgb(255, 0, 0)"><strong class="properties me-3">Subscription Time Left:
+                            </strong>
+                            Invalid HWID
+                        </p>
+                        <%} else { %>
+                            <p style="color: rgb(96, 254, 96)"><strong class="properties me-3">Subscription Time Left:
+                                </strong>
+                                <%= timeLeft.days %> days <%= timeLeft.hours %> hours
+                            </p>
+                            <%}%>
+                </div>
+                <div class="col-6 p-3 pb-0 w-75">
+                    <% if (response==="Invalid HWID" ) { %>
+                        <p style="color: rgb(255, 0, 0)"><strong class="properties me-3">Last Connection: </strong>
+                            No HWID entered
+                        </p>
+                        <%} else { %>
+                            <p style="color: rgb(96, 254, 96)"><strong class="properties me-3">Last Connection </strong>
+                                <%= response.lastConnection %>
+                            </p>
+                            <%}%>
+                </div>
+            </div>
+            <% if (!user.hwid) { %>
+                <h5 class="my-4 text-white">Add hwid to see your subscription timer</h5>
+                <form action="/addHwid" method="post">
+                    <div class="mb-3">
+                        <label for="hwid" class="form-label text-white">HWID</label>
+                        <div class="d-flex">
+                            <input type="text" id="hwid" name="hwid" class="form-control w-25"
+                                placeholder="Add HWID Here">
+                            <button type="submit" class="btn btn-success mx-4">Add</button>
+                        </div>
+                    </div>
+
+                </form>
+                <%}%>
+                    <% if (user.hwid) {%>
+                        <h5 class="my-4 text-white">Edit your hwid</h5>
+                        <form action="/editHwid" method="post">
+                            <div class="mb-3">
+                                <label for="hwid" class="form-label text-white">HWID</label>
+                                <div class="d-flex">
+                                    <input type="text" id="hwid" name="hwid" class="form-control w-25"
+                                        placeholder="Add HWID Here">
+                                    <button type="submit" class="btn btn-success mx-4">Edit</button>
+                                </div>
+                            </div>
+
+                        </form>
+                        <%}%>
+        </div>
+
+        <%- include('./partials/footer') %>

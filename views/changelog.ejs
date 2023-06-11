@@ -1,0 +1,60 @@
+<%- include('./partials/head') %>
+    <%- include('./partials/navbar') %>
+
+        <div class="container-lg">
+            <div class="row my-4">
+                <div class="col-md-8">
+                    <h2 style="color:antiquewhite">The full Changelog</h2>
+                </div>
+            </div>
+            <% if (user.admin) { %>
+                <div class="container w-50 align-self-start m-0">
+                    <form action="/addpost" method="post">
+                        <div class="mb-3">
+                            <label for="postTitle" class="form-label text-white">Title</label>
+                            <input name="title" type="text" class="form-control" id="postTitle">
+                          </div>
+                          <div class="mb-3">
+                            <label for="postBody" class="form-label text-white">Body</label>
+                            <textarea name="body" class="form-control" id="postBody" rows="3"></textarea>
+                          </div>
+                          <div class="mb-3">
+                            <button type="submit" class="btn btn-light">Add</button>
+                          </div>
+                    </form>
+                </div>
+            <%}%>
+
+            <% postArray.reverse().forEach( post=> { %>
+                <div class="card changelog-card text-bg-dark" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="row">
+                            <h5 class="card-title mb-2">
+                                <%= post.title %>
+                            </h5>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-10">
+                                <% let nums = post.body.split(/\r\n|\n|\r/); %>
+                                <% for(let i=0; i< nums.length ; i++) { %>
+                                    <p class="card-text my-1"> <%= nums[i] %></p>
+                                <% } %>
+                            </div>
+                            <div class="col-2 pe-2 align-self-end">
+                                <% if (user.admin) { %>
+                                    <form action="/deletepost" method="post" class="end-0">
+                                        <input type="hidden" name="postId" value="<%= post._id %>">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                <%}%>
+                            </div>
+                        </div>          
+                    </div>
+                </div>
+                <%});%>
+        </div>
+
+
+
+        <%- include('./partials/footer') %>

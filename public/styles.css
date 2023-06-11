@@ -1,0 +1,108 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, rgb(173, 83, 137), rgb(60, 16, 83));
+  font-family: "Ubuntu", sans-serif;
+}
+/* #fff6c6 */
+
+.navbar-bg {
+  background-color: #390832;
+}
+.navbar-img {
+  width: 200px;
+}
+.navbar-items {
+  color: rgb(96, 235, 94);
+}
+
+.nav-link:hover {
+  color: rgb(254, 255, 238);
+}
+
+.containter-lg {
+  height: 100%;
+}
+
+#main-page-content {
+  font-family: "Ubuntu";
+}
+
+.changelog-card {
+  margin: 5px auto;
+}
+
+.main-features {
+  height: 100%;
+}
+
+.features-bg {
+  /* background-color: rgb(51, 26, 75); */
+  background: radial-gradient(
+    circle at 24.1% 68.8%,
+    rgb(50, 50, 50) 0%,
+    rgb(0, 0, 0) 99.4%
+  );
+}
+
+.features-ul {
+  margin-left: 10px;
+  color: rgb(222, 188, 188);
+  font-family: "Ubuntu", "sans-serif";
+}
+
+.features-ul > h5 {
+  color: rgb(195, 255, 240);
+}
+
+.list-title {
+  font-family: "Ubuntu";
+  color: rgb(243, 224, 51);
+  font-style: italic;
+}
+
+.login-container {
+  margin-top: 60px;
+  width: 50%;
+  border-radius: 10px;
+  height: 550px;
+}
+
+.properties {
+  color: #30cfa7;
+}
+
+.profile-border {
+  border: 2px solid rgb(7, 7, 7);
+  border-radius: 10px;
+  background-color: rgb(26, 22, 22);
+}
+
+.subscribe-steps {
+  color: #6eff46;
+  margin-bottom: 2rem;
+  font-weight: bold;
+}
+
+.invalid-hwid {
+  color: red;
+}
+
+.valid-hwid {
+  color: rgb(96, 254, 96);
+}
+
+.login-form {
+  border-radius: 10px;
+  box-shadow: 5px 5px 8px 2px #ffffff;
+  background-color: #390832;
+}
+
+.video-slide {
+  width: 90%;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  top:50%;
+  max-height: max-content;
+}
