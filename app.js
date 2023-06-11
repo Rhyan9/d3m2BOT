@@ -7,6 +7,9 @@ const passport = require('passport');
 const net = require('net');
 const axios = require('axios');
 require('dotenv').config();
+const favicon = require('serve-favicon');
+const path = require('path');
+
 
 
 
@@ -26,6 +29,7 @@ if (port == null || port == "") {
 }
 const app = express();
 
+app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 app.set('json spaces', 40);
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
