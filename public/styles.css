@@ -94,8 +94,9 @@ body {
 
 .login-form {
   border-radius: 10px;
-  box-shadow: 5px 5px 8px 2px #ffffff;
+  box-shadow: 0px 0px 8px 2px #ffffff;
   background-color: #390832;
+  width: 100%;
 }
 
 .video-slide {
