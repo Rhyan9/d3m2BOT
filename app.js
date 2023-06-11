@@ -22,7 +22,7 @@ let noCaptchaReg = false;
 
 let port = process.env.PORT;
 if (port == null || port == "") {
-  port = 3000;
+    port = 3000;
 }
 const app = express();
 
@@ -174,8 +174,7 @@ app.post("/register", async (req, res) => {
                     // No email or password entered
                     noCredsReg = true;
                     res.redirect('/register');
-                }
-                else {
+                } else {
                     if (foundUser) {
                         // Username already exists!
                         existsReg = true;
@@ -192,8 +191,9 @@ app.post("/register", async (req, res) => {
                     }
                 }
             } else {
-                noCaptchaReg = true;
-                res.redirect('/register');
+                res.send(response.data.success);
+                // noCaptchaReg = true;
+                // res.redirect('/register');
             }
         })
 });
