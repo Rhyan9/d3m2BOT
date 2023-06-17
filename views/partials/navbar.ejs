@@ -30,11 +30,20 @@
                             </li>
 
                             <div class="dropdown ps-4">
-                                <button class="btn btn-danger dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    Signed in as: <strong style="color:white">
-                                        <%= currentUser %>
-                                    </strong>
-                                </button>
+                                <% if (currentUser==="Guest") { %>
+                                    <button class="btn btn-danger dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Signed in as: <strong style="color:white">
+                                            <%= currentUser %>
+                                        </strong>
+                                    </button>
+                                <%} else {%>
+                                    <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Signed in as: <strong style="color:white">
+                                            <%= currentUser %>
+                                        </strong>
+                                    </button>
+                                <%}%>
+                                
                                 <ul class="dropdown-menu" data-bs-theme="dark">
                                     <% if (currentUser !=='Guest' ) { %>
                                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
