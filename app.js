@@ -100,8 +100,8 @@ app.get("/", async (req, res, next) => {
 app.get("/features", async (req, res) => {
     res.render('features', { user: (req.user ? req.user : '') });
 });
-app.get("/subscribe", async (req, res) => {
-    res.render('subscribe', { user: (req.user ? req.user : '') });
+app.get("/how-to", async (req, res) => {
+    res.render('how-to', { user: (req.user ? req.user : '') });
 });
 
 app.get("/changelog", async (req, res) => {

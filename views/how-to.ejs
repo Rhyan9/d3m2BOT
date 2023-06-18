@@ -1,0 +1,75 @@
+<%- include('./partials/head') %>
+    <%- include('./partials/navbar') %>
+
+        <section id="pricing">
+            <div class="container-xl text-white">
+                <h2 class="text-center my-4">How to subscribe?</h2>
+                <div class="row">
+                    <div class="col-7">
+                        <h3 class="subscribe-steps">Step 1</h3>
+                        <p>Add "d3frk#6351" or "urbane2" on discord.</p>
+
+                    </div>
+                    <div class="col-5">
+                        <table class="table table-hover border-black text-center my-3">
+                            <thead>
+                                <tr class="table-info">
+                                    <th scope="col">Duration</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Revolut</th>
+                                    <th scope="col">Skrill</th>
+                                    <th scope="col">BTC</th>
+                                    <th scope="col">Crypto Voucher</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                <tr>
+                                    <th scope="row" class="table-info">1 week</th>
+                                    <td class="table-info">£10</td>
+                                    <td class="table-success">Yes</td>
+                                    <td class="table-success">Yes</td>
+                                    <td class="table-danger">No</td>
+                                    <td class="table-danger">No</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="table-info">1 month</th>
+                                    <td class="table-info">£25</td>
+                                    <td class="table-success">Yes</td>
+                                    <td class="table-success">Yes</td>
+                                    <td class="table-success">Yes</td>
+                                    <td class="table-success">Yes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="subscribe-steps">Step 2</h3>
+                        <p>Choose one of our plans from the table, then pay the amount.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-7">
+                        <h3 class="subscribe-steps">Step 3</h3>
+                        <p>Once payment is verified, you will have access in the discord server to install the bot and the setup video in this page!</p>
+                    </div>
+                    <div class="col-5 pb-5 pt-0 mt-0">
+                        <% if (user.subscribed) { %>
+                            <iframe class="d-flex justify-content-end me-0 pe-0" allow="fullscreen" width="570px"
+                                height="350px" src="https://www.youtube.com/embed/5ZypIqiTWlk" frameborder="0"></iframe>
+                            <%}%>
+                    </div>
+                </div>
+                
+
+            </div>
+        </section>
+
+
+
+
+
+
+
+        <%- include('./partials/footer') %>
