@@ -34,6 +34,7 @@ app.set('json spaces', 40);
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.set('trust proxy', 1);
 app.use(limiter({
     windowMs: 5000,
     max: 5,
