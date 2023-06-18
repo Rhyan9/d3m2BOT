@@ -9,6 +9,7 @@ const axios = require('axios');
 require('dotenv').config();
 const favicon = require('serve-favicon');
 const path = require('path');
+const limiter = require('express-rate-limit');
 
 
 
@@ -17,7 +18,6 @@ const { Post, User } = require('./src/db.js');
 
 
 const { Strategy } = require('passport-local');
-const { memoryUsage } = require('process');
 
 let noCredsReg = false;
 let existsReg = false;
@@ -34,6 +34,11 @@ app.set('json spaces', 40);
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use(limiter({
+    windowMs: 5000,
+    max: 5,
+}))
+
 app.use(session({
     secret: process.env.sessionSecret,
     resave: false,
@@ -71,6 +76,7 @@ passport.use(
             const dbUser = await User.findOne({ username });
             if (!dbUser) {
                 noCredsLog = true;
+                console.log("no user here");
                 throw new Error('user not found');
             }
             const isValid = await bcrypt.compare(password, dbUser.password);
@@ -203,6 +209,8 @@ app.post("/register", async (req, res) => {
 
 app.post('/login', passport.authenticate('local'), (req, res) => {
     console.log('logged in');
+    console.log("test123123");
+    console.log("TEST123");
     res.redirect('/');
 });
 
