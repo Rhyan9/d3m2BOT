@@ -169,6 +169,14 @@ app.get('/logout', async (req, res) => {
         res.redirect('/');
     });
 });
+app.get('/usersAdmin', async(req,res)=>{
+    if (req.user.admin) {
+        const users = await User.find({});
+        res.render('users', { user: (req.user ? req.user : ''), dbUsers: users });
+    } else {
+        res.redirect('/');
+    }
+});
 
 // POST requests //
 app.post("/register", async (req, res) => {

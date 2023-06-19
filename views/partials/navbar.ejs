@@ -47,11 +47,15 @@
                                 <ul class="dropdown-menu" data-bs-theme="dark">
                                     <% if (currentUser !=='Guest' ) { %>
                                         <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                                        <% if (user.admin) { %>
+                                            <li><a class="dropdown-item" href="/usersAdmin">Users</a></li>
+                                        <%}%>
                                         <% } %>
                                             <% if (currentUser==='Guest' ) { %>
                                                 <li><a class="dropdown-item" href="/register">Register</a></li>
                                                 <li><a class="dropdown-item" href="/login">Login</a></li>
                                                 <% } %>
+                                            
                                 </ul>
                             </div>
                         </ul>
