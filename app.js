@@ -1,33 +1,56 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
-const passport = require('passport');
 const net = require('net');
 const axios = require('axios');
 require('dotenv').config();
 const favicon = require('serve-favicon');
 const path = require('path');
 const limiter = require('express-rate-limit');
-
-
-
+// const {checkUser, requireAuth, createToken} = require('./src/authentication.js');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const { Post, User } = require('./src/db.js');
-
-
-const { Strategy } = require('passport-local');
 
 let noCredsReg = false;
 let existsReg = false;
 let noCaptchaReg = false;
+let noCredsLog = false;
+let invalidCreds = false;
 
 let port = process.env.PORT;
 if (port == null || port == "") {
     port = 3000;
 }
 const app = express();
+
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.jwtsecret, {
+        expiresIn: 60 * 20
+    });
+}
+
+const checkUser = (req, res, next) => {
+    const token = req.cookies.jwt;
+    if (token) {
+        jwt.verify(token, process.env.jwtsecret, async (err, decodedToken) => {
+            if (err) {
+                console.log(err.message);
+                res.locals.user = null;
+                next();
+            } else {
+                console.log(decodedToken);
+                let user = await User.findById(decodedToken.id);
+                res.locals.user = user;
+                next();
+            }
+        })
+    } else { res.locals.user = ''; next(); }
+}
+
+
+
 
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 app.set('json spaces', 40);
@@ -39,100 +62,49 @@ app.use(limiter({
     windowMs: 5000,
     max: 5,
 }))
+app.use(cookieParser());
+app.get('*', checkUser);
 
-app.use(session({
-    secret: process.env.sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.mongoUrl,
-    }),
-    cookie: { maxAge: 1000000 }
-}));
 
-passport.serializeUser((user, done) => {
-    console.log('Serializing user..');
-    done(null, user.id)
-});
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await User.findById(id);
-        if (!user) throw new Error('User not found');
-        console.log("Deserializing User");
-        done(null, user);
-    } catch (err) {
-        console.log(err);
-        done(err, null);
-    }
-});
-passport.use(
-    new Strategy({
-        usernameField: 'username',
-    }, async (username, password, done) => {
-        try {
-            if (!username || !password) {
-                console.log("please enter a user or pw");
-                throw new Error('Missing Credentials');
-            }
-            const dbUser = await User.findOne({ username });
-            if (!dbUser) {
-                noCredsLog = true;
-                console.log("no user here");
-                throw new Error('user not found');
-            }
-            const isValid = await bcrypt.compare(password, dbUser.password);
-            if (isValid) {
 
-                console.log('Authenticated Successfully!');
-                done(null, dbUser);
-            } else {
-                console.log('Invalid Authentication');
-                done(null, null);
-            }
-        } catch (err) {
-            console.log('err');
-            done(err, null);
-        }
-    })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 // GET requests //
 app.get("/", async (req, res, next) => {
     const changelogPosts = await Post.find({});
-    res.render('home', { user: (req.user ? req.user : ''), postArray: changelogPosts });
+    res.render('home', { postArray: changelogPosts });
 });
 app.get("/features", async (req, res) => {
-    res.render('features', { user: (req.user ? req.user : '') });
+    res.render('features');
 });
 app.get("/how-to", async (req, res) => {
-    res.render('how-to', { user: (req.user ? req.user : '') });
+    res.render('how-to');
 });
 
 app.get("/changelog", async (req, res) => {
     const changelogPosts = await Post.find({});
-    res.render('changelog', { user: (req.user ? req.user : ''), postArray: changelogPosts });
+    res.render('changelog', { postArray: changelogPosts });
 });
 app.get("/login", async (req, res) => {
-    res.render('login', { user: (req.user ? req.user : ''), found: true });
+    res.render('login', { noCreds: noCredsLog, invalidCreds: invalidCreds,});
+    noCredsLog = false;
+    existsLog = false;
+    invalidCreds = false;
 });
 app.get("/register", async (req, res) => {
-    res.render('register', { user: (req.user ? req.user : ''), noCreds: noCredsReg, exists: existsReg, noCaptcha: noCaptchaReg });
+    res.render('register', { noCreds: noCredsReg, exists: existsReg, noCaptcha: noCaptchaReg });
     noCredsReg = false;
     existsReg = false;
     noCaptchaReg = false;
 });
 
 app.get("/profile", async (req, res) => {
-    if (req.user) {
+    if (res.locals.user) {
         const client = new net.Socket();
         client.connect(9999, process.env.profileIP, () => {
-            client.write(`HWID: ${req.user.hwid || "None"}`);
+            client.write(`HWID: ${res.locals.user.hwid || "None"}`);
             client.on('data', (data) => {
                 if (data.toString() === "Invalid HWID") {
-                    res.render('profile', { user: (req.user ? req.user : ''), response: "Invalid HWID" });
+                    res.render('profile', { response: "Invalid HWID" });
                 } else {
                     const response = JSON.parse(data);
                     const time = Date.now();
@@ -148,7 +120,7 @@ app.get("/profile", async (req, res) => {
                     const finalTime = { days: timeDays, hours: timeHours.toFixed(0) };
                     // console.log(timeLeft, time, response.clientExpiretime);
                     console.log(`Response from socket server: ${data}`);
-                    res.render('profile', { user: (req.user ? req.user : ''), timeLeft: finalTime, response: response });
+                    res.render('profile', { timeLeft: finalTime, response: response });
                 }
                 client.destroy();
             });
@@ -158,21 +130,19 @@ app.get("/profile", async (req, res) => {
         });
         client.on('error', (err) => {
             console.log(err);
-            res.render('profile', { user: (req.user ? req.user : '') });
+            res.render('profile');
         })
     } else res.redirect('/login');
 
 });
 app.get('/logout', async (req, res) => {
-    req.logOut((err) => {
-        if (err) console.log(err);
-        res.redirect('/');
-    });
+    res.cookie('jwt', '', { expiresIn: 1 });
+    res.redirect('/');
 });
-app.get('/usersAdmin', async(req,res)=>{
-    if (req.user.admin) {
+app.get('/usersAdmin', async (req, res) => {
+    if (res.locals.user.admin) {
         const users = await User.find({});
-        res.render('users', { user: (req.user ? req.user : ''), dbUsers: users });
+        res.render('users', { dbUsers: users });
     } else {
         res.redirect('/');
     }
@@ -216,11 +186,30 @@ app.post("/register", async (req, res) => {
         })
 });
 
-app.post('/login', passport.authenticate('local'), (req, res) => {
-    console.log('logged in');
-    console.log("test123123");
-    console.log("TEST123");
-    res.redirect('/');
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        noCredsLog = true;
+        res.redirect('/login');
+    } else {
+        const user = await User.findOne({ username });
+        if (user) {
+            const matched = await bcrypt.compare(password, user.password);
+            console.log(matched);
+            if (matched) {
+                const token = createToken(user._id);
+                res.cookie('jwt', token, { httpOnly: true, maxAge: 15 * 60 * 1000 });
+                res.redirect('/');
+            } else {
+                // Please enter username and password
+                invalidCreds = true;
+                res.redirect('/login');
+            }
+        } else {
+            invalidCreds = true;
+            res.redirect('/login');
+        }
+    }
 });
 
 app.post('/addpost', async (req, res) => {

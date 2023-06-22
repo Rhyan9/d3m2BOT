@@ -7,7 +7,7 @@
                     <h2 style="color:antiquewhite">The full Changelog</h2>
                 </div>
             </div>
-            <% if (user.admin) { %>
+            <% if (user) if (user.admin) { %>
                 <div class="container w-50 align-self-start m-0">
                     <form action="/addpost" method="post">
                         <div class="mb-3">
