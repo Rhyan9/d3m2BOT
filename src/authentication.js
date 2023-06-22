@@ -1,15 +1,34 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const net = require('net');
-const axios = require('axios');
 require('dotenv').config();
-const favicon = require('serve-favicon');
-const path = require('path');
-const limiter = require('express-rate-limit');
-// const {checkUser, requireAuth, createToken} = require('./src/authentication.js');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const app = express();
+app.use(cookieParser());
+const { User, Post } = require('./db');
+
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.jwtsecret, {
+        expiresIn: 60 * 20
+    });
+}
+
+const checkUser = (req, res, next) => {
+    const token = req.cookies.jwt;
+    if (token) {
+        jwt.verify(token, process.env.jwtsecret, async (err, decodedToken) => {
+            if (err) {
+                console.log(err.message);
+                res.locals.user = null;
+                next();
+            } else {
+                console.log(decodedToken);
+                let user = await User.findById(decodedToken.id);
+                res.locals.user = user;
+                next();
+            }
+        })
+    } else { res.locals.user = ''; next(); }
+}
 
 
-module.exports = {checkUser, requireAuth, createToken};
+module.exports = { checkUser, createToken };

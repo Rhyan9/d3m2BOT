@@ -7,9 +7,8 @@ require('dotenv').config();
 const favicon = require('serve-favicon');
 const path = require('path');
 const limiter = require('express-rate-limit');
-// const {checkUser, requireAuth, createToken} = require('./src/authentication.js');
+const {checkUser, createToken} = require('./src/authentication.js');
 const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
 
 const { Post, User } = require('./src/db.js');
 
@@ -24,32 +23,6 @@ if (port == null || port == "") {
     port = 3000;
 }
 const app = express();
-
-const createToken = (id) => {
-    return jwt.sign({ id }, process.env.jwtsecret, {
-        expiresIn: 60 * 20
-    });
-}
-
-const checkUser = (req, res, next) => {
-    const token = req.cookies.jwt;
-    if (token) {
-        jwt.verify(token, process.env.jwtsecret, async (err, decodedToken) => {
-            if (err) {
-                console.log(err.message);
-                res.locals.user = null;
-                next();
-            } else {
-                console.log(decodedToken);
-                let user = await User.findById(decodedToken.id);
-                res.locals.user = user;
-                next();
-            }
-        })
-    } else { res.locals.user = ''; next(); }
-}
-
-
 
 
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
@@ -140,6 +113,7 @@ app.get('/logout', async (req, res) => {
     res.redirect('/');
 });
 app.get('/usersAdmin', async (req, res) => {
+    // Check if logged in user is an admin
     if (res.locals.user.admin) {
         const users = await User.find({});
         res.render('users', { dbUsers: users });
@@ -153,7 +127,7 @@ app.post("/register", async (req, res) => {
     const response_key = req.body['g-recaptcha-response'];
     const secret_key = process.env.secret_key;
     const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${response_key}`;
-
+    // axios post request to google's api for recaptcha v2
     axios.post(url, {})
         .then(async (response) => {
             if (response.data.success === true) {
@@ -189,6 +163,7 @@ app.post("/register", async (req, res) => {
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
+        // no username or password input
         noCredsLog = true;
         res.redirect('/login');
     } else {
@@ -201,11 +176,12 @@ app.post('/login', async (req, res) => {
                 res.cookie('jwt', token, { httpOnly: true, maxAge: 15 * 60 * 1000 });
                 res.redirect('/');
             } else {
-                // Please enter username and password
+                // Wrong username or password
                 invalidCreds = true;
                 res.redirect('/login');
             }
         } else {
+            // Username not found
             invalidCreds = true;
             res.redirect('/login');
         }
