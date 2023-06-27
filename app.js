@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
@@ -7,7 +9,7 @@ require('dotenv').config();
 const favicon = require('serve-favicon');
 const path = require('path');
 const limiter = require('express-rate-limit');
-const {checkUser, createToken} = require('./src/authentication.js');
+const { checkUser, createToken } = require('./src/authentication.js');
 const cookieParser = require('cookie-parser');
 
 const { Post, User } = require('./src/db.js');
@@ -19,7 +21,7 @@ let noCredsLog = false;
 let invalidCreds = false;
 
 let port = process.env.PORT;
-if (port == null || port == "") {
+if (port == null || port == '') {
     port = 3000;
 }
 const app = express();
@@ -34,50 +36,49 @@ app.set('trust proxy', 1);
 app.use(limiter({
     windowMs: 5000,
     max: 5,
-}))
+}));
 app.use(cookieParser());
 app.get('*', checkUser);
-
-
+app.post('*', checkUser);
 
 
 // GET requests //
-app.get("/", async (req, res, next) => {
+app.get('/', async (req, res, next) => {
     const changelogPosts = await Post.find({});
     res.render('home', { postArray: changelogPosts });
 });
-app.get("/features", async (req, res) => {
+app.get('/features', async (req, res) => {
     res.render('features');
 });
-app.get("/how-to", async (req, res) => {
+app.get('/how-to', async (req, res) => {
     res.render('how-to');
 });
 
-app.get("/changelog", async (req, res) => {
+app.get('/changelog', async (req, res) => {
     const changelogPosts = await Post.find({});
     res.render('changelog', { postArray: changelogPosts });
 });
-app.get("/login", async (req, res) => {
-    res.render('login', { noCreds: noCredsLog, invalidCreds: invalidCreds,});
+app.get('/login', async (req, res) => {
+    res.render('login', { noCreds: noCredsLog, invalidCreds: invalidCreds, });
     noCredsLog = false;
     existsLog = false;
     invalidCreds = false;
 });
-app.get("/register", async (req, res) => {
+app.get('/register', async (req, res) => {
     res.render('register', { noCreds: noCredsReg, exists: existsReg, noCaptcha: noCaptchaReg });
     noCredsReg = false;
     existsReg = false;
     noCaptchaReg = false;
 });
 
-app.get("/profile", async (req, res) => {
+app.get('/profile', async (req, res) => {
     if (res.locals.user) {
         const client = new net.Socket();
         client.connect(9999, process.env.profileIP, () => {
-            client.write(`HWID: ${res.locals.user.hwid || "None"}`);
+            client.write(`HWID: ${res.locals.user.hwid || 'None'}`);
             client.on('data', (data) => {
-                if (data.toString() === "Invalid HWID") {
-                    res.render('profile', { response: "Invalid HWID" });
+                if (data.toString() === 'Invalid HWID') {
+                    res.render('profile', { response: 'Invalid HWID' });
                 } else {
                     const response = JSON.parse(data);
                     const time = Date.now();
@@ -104,7 +105,7 @@ app.get("/profile", async (req, res) => {
         client.on('error', (err) => {
             console.log(err);
             res.render('profile');
-        })
+        });
     } else res.redirect('/login');
 
 });
@@ -123,7 +124,7 @@ app.get('/usersAdmin', async (req, res) => {
 });
 
 // POST requests //
-app.post("/register", async (req, res) => {
+app.post('/register', async (req, res) => {
     const response_key = req.body['g-recaptcha-response'];
     const secret_key = process.env.secret_key;
     const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${response_key}`;
@@ -157,7 +158,7 @@ app.post("/register", async (req, res) => {
                 noCaptchaReg = true;
                 res.redirect('/register');
             }
-        })
+        });
 });
 
 app.post('/login', async (req, res) => {
@@ -200,13 +201,13 @@ app.post('/deletepost', async (req, res) => {
 });
 app.post('/addHwid', async (req, res) => {
     const hwid = req.body.hwid;
-    await User.findOneAndUpdate({ username: req.user.username }, { hwid: hwid || "None" }, { new: true });
+    await User.findOneAndUpdate({ username: res.locals.user.username }, { hwid: hwid || 'None' }, { new: true });
     res.redirect('/profile');
 });
 app.post('/editHwid', async (req, res) => {
     const hwid = req.body.hwid;
-    await User.findOneAndUpdate({ username: req.user.username }, { hwid: hwid || "None" }, { new: true });
+    await User.findOneAndUpdate({ username: res.locals.user.username }, { hwid: hwid || 'None' }, { new: true });
     res.redirect('/profile');
 });
 
-app.listen(port, () => { console.log(`listening on port ${port}`) });
+app.listen(port, () => { console.log(`listening on port ${port}`); });

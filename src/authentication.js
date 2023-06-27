@@ -1,16 +1,17 @@
+/* eslint-disable no-undef */
 const express = require('express');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const app = express();
 app.use(cookieParser());
-const { User, Post } = require('./db');
+const { User } = require('./db');
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.jwtsecret, {
         expiresIn: 60 * 20
     });
-}
+};
 
 const checkUser = (req, res, next) => {
     const token = req.cookies.jwt;
@@ -26,9 +27,9 @@ const checkUser = (req, res, next) => {
                 res.locals.user = user;
                 next();
             }
-        })
+        });
     } else { res.locals.user = ''; next(); }
-}
+};
 
 
 module.exports = { checkUser, createToken };
